@@ -1,9 +1,12 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask import Flask, render_template, request, redirect, url_for, session, flash, g
 from functools import wraps
+import sqlite3
 
 app = Flask(__name__)
 
-app.secret_key = 'goofygroove' # DANGEROUS..but first we need secret_key for sessions to work properly
+# Configuration values (secret_key is a builtin config value)
+app.secret_key = "goofygroove" # DANGEROUS..but first we need secret_key for sessions to work properly
+app.database = "sample.db"
 
 # login required decorator
 def login_required(f):
@@ -22,7 +25,11 @@ def login_required(f):
 @login_required
 def home():
     # return "Hello World!"
-    return render_template("index.html")
+    g.db = connect_db()
+    cur = g.db.execute('select * from posts')
+    posts = [dict(title=row[0], description=row[1]) for row in cur.fetchall()]
+    g.db.close()
+    return render_template("index.html", posts=posts) # posts=posts --> past our `posts` variable to index.html template
 
 @app.route('/welcome')
 def welcome():
@@ -46,6 +53,12 @@ def logout():
     session.pop('logged_in', None)
     flash('you were just logged out')
     return redirect(url_for('welcome'))
+
+
+def connect_db(): # to establish a database
+    return sqlite3.connect(app.database)
+
+
 
 if __name__ == "__main__":
     app.run(debug=True) # `debug=True` gives us a fancier flask debugger in the browser
