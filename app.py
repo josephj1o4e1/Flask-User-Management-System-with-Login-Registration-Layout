@@ -20,7 +20,7 @@ def login_required(f):
     return wrap
 
 # set route. use a decorator to link a url to a function. (see flasknotes)
-# a decorator: when url '/' is requested by client, it triggers home()
+# decorator @app.route('/'): before triggering home(), we need to detect if url '/' is requested by client before executing home().  
 @app.route('/')
 @login_required
 def home():
