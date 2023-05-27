@@ -1,4 +1,9 @@
 /textnotes
 /drawio
-/FlaskEnv
 __pycache__
+
+# dependencies
+/FlaskEnv
+
+# env
+.env
