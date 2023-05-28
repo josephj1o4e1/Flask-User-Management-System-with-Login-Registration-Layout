@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash, g
+from flask_sqlalchemy import SQLAlchemy
 from functools import wraps
 import sqlite3
 
@@ -6,7 +7,14 @@ app = Flask(__name__)
 
 # Configuration values (secret_key is a builtin config value)
 app.secret_key = "goofygroove" # DANGEROUS..but first we need secret_key for sessions to work properly
-app.database = "sample.db"
+# app.database = "sample.db"
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///posts.db' # models.py --> __tablename__ = "posts"
+
+# create the sqlalchemy object
+db = SQLAlchemy(app)
+
+# import db schema
+from models import *
 
 # login required decorator
 def login_required(f):
@@ -24,11 +32,18 @@ def login_required(f):
 @app.route('/')
 @login_required
 def home():
-    # return "Hello World!"
-    g.db = connect_db()
-    cur = g.db.execute('select * from posts')
-    posts = [dict(title=row[0], description=row[1]) for row in cur.fetchall()]
-    g.db.close()
+    # # .....1st version
+    # return "Hello World!" 
+
+    # # .....2nd version
+    # g.db = connect_db()
+    # cur = g.db.execute('select * from posts')
+    # posts = [dict(title=row[0], description=row[1]) for row in cur.fetchall()]
+    # g.db.close()
+
+    # .....3rd version
+    with app.app_context(): 
+        posts = db.session.query(BlogPost).all()
     return render_template("index.html", posts=posts) # posts=posts --> past our `posts` variable to index.html template
 
 @app.route('/welcome')
@@ -55,8 +70,8 @@ def logout():
     return redirect(url_for('welcome'))
 
 
-def connect_db(): # to establish a database
-    return sqlite3.connect(app.database)
+# def connect_db(): # to establish a database
+#     return sqlite3.connect(app.database)
 
 
 
