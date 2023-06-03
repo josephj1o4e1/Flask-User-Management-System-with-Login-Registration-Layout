@@ -1,14 +1,12 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash, g
 from flask_sqlalchemy import SQLAlchemy
 from functools import wraps
-import sqlite3
+# import sqlite3
 
 app = Flask(__name__)
 
-# Configuration values (secret_key is a builtin config value)
-app.secret_key = "goofygroove" # DANGEROUS..but first we need secret_key for sessions to work properly
-# app.database = "sample.db"
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///posts.db' # models.py --> __tablename__ = "posts"
+import os
+app.config.from_object(os.environ['APP_SETTINGS']) # set APP_SETTINGS=...(dev mode right now, not prod mode)
 
 # create the sqlalchemy object
 db = SQLAlchemy(app)
@@ -25,7 +23,7 @@ def login_required(f):
         else:
             flash('You need to login first.')
             return redirect(url_for('login'))
-    return wrap
+    return wrap 
 
 # set route. use a decorator to link a url to a function. (see flasknotes)
 # decorator @app.route('/'): before triggering home(), we need to detect if url '/' is requested by client before executing home().  
@@ -59,6 +57,8 @@ def login():
         else :
             session['logged_in'] = True
             flash('you were just logged in')
+            return redirect(url_for('home'))
+    if 'logged_in' in session:
             return redirect(url_for('home'))
     return render_template("login.html", error=error)
 
