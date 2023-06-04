@@ -18,6 +18,7 @@ werkzeug = "==2.3.4"
 zipp = "==3.15.0"
 flask-sqlalchemy = "*"
 python-dotenv = "*"
+psycopg2 = "*"
 
 [dev-packages]
 
