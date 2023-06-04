@@ -1,12 +1,13 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash, g
 from flask_sqlalchemy import SQLAlchemy
 from functools import wraps
-# import sqlite3
+from dotenv import load_dotenv
+load_dotenv()
 
 app = Flask(__name__)
 
 import os
-app.config.from_object(os.environ['APP_SETTINGS']) # set APP_SETTINGS=...(dev mode right now, not prod mode)
+app.config.from_object(os.getenv('APP_SETTINGS')) # ...(dev mode right now, not prod mode)
 
 # create the sqlalchemy object
 db = SQLAlchemy(app)
