@@ -19,6 +19,8 @@ zipp = "==3.15.0"
 flask-sqlalchemy = "*"
 python-dotenv = "*"
 psycopg2 = "*"
+flask-migrate = "*"
+flask-script = "*"
 
 [dev-packages]
 

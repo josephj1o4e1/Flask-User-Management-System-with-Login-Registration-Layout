@@ -41,8 +41,7 @@ def home():
     # g.db.close()
 
     # .....3rd version
-    with app.app_context(): 
-        posts = db.session.query(BlogPost).all()
+    posts = db.session.query(BlogPost).all()
     return render_template("index.html", posts=posts) # posts=posts --> past our `posts` variable to index.html template
 
 @app.route('/welcome')
