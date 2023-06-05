@@ -21,6 +21,7 @@ python-dotenv = "*"
 psycopg2 = "*"
 flask-migrate = "*"
 flask-script = "*"
+bcrypt = "*"
 
 [dev-packages]
 

@@ -2,6 +2,7 @@ from app import db
 
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
+from bcrypt import hashpw, checkpw, gensalt
 
 class BlogPost(db.Model):
     
@@ -33,7 +34,7 @@ class User(db.Model):
     def __init__(self, name, email, password):
         self.name = name
         self.email = email
-        self.password = password
+        self.password = hashpw(password.encode('utf-8'), gensalt())
 
     def __repr__(self):
         return '<name {}'.format(self.name)
