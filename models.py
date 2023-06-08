@@ -34,7 +34,25 @@ class User(db.Model):
         self.name = name
         self.email = email
         self.password = bcrypt.generate_password_hash(password) # default salt value = 12 rounds
+        self.is_authenticated = False
 
     def __repr__(self):
         return '<name {}'.format(self.name)
+    
+    def is_active(self):
+        """True, as all users are active."""
+        return True
+
+    def get_id(self):
+        """Return id to satisfy Flask-Login's requirements."""
+        return str(self.id)
+
+    def is_authenticated(self):
+        """Return True if the user is authenticated."""
+        return True
+
+    def is_anonymous(self):
+        """False, as anonymous users aren't supported."""
+        return False
+
 

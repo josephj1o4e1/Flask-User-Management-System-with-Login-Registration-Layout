@@ -23,6 +23,7 @@ flask-migrate = "*"
 flask-script = "*"
 flask-wtf = "*"
 flask-bcrypt = "*"
+flask-login = "*"
 
 [dev-packages]
 

@@ -1,12 +1,16 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash, g
-from flask_bcrypt import Bcrypt
+from flask import Flask, render_template, request, redirect, url_for, flash, g
 from flask_sqlalchemy import SQLAlchemy
-from functools import wraps
+from flask_bcrypt import Bcrypt
+from flask_login import LoginManager, login_user, login_required, logout_user
+# from functools import wraps
 from dotenv import load_dotenv
 load_dotenv()
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = "/login"
 
 import os
 app.config.from_object(os.getenv('APP_SETTINGS')) # ...(dev mode right now, not prod mode)
@@ -18,16 +22,24 @@ db = SQLAlchemy(app)
 from models import *
 from forms import LoginForm
 
-# login required decorator
-def login_required(f):
-    @wraps(f)
-    def wrap(*args, **kwargs):
-        if 'logged_in' in session:
-            return f(*args, **kwargs)
-        else:
-            flash('You need to login first.')
-            return redirect(url_for('login'))
-    return wrap 
+# Gets the user information from userid, and store the retrieved data in the session cookie. 
+# load_user is a required callbackfunction to be defined for the user_loader decorator. 
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.filter(User.id == int(user_id)).first()
+    # return User.get_id(user_id)
+
+
+# # login required decorator
+# def login_required(f):
+#     @wraps(f)
+#     def wrap(*args, **kwargs):
+#         if 'logged_in' in session:
+#             return f(*args, **kwargs)
+#         else:
+#             flash('You need to login first.')
+#             return redirect(url_for('login'))
+#     return wrap 
 
 # set route. use a decorator to link a url to a function. (see flasknotes)
 # decorator @app.route('/'): before triggering home(), we need to detect if url '/' is requested by client before executing home().  
@@ -48,20 +60,20 @@ def login():
     if form.validate_on_submit():
         foundUser = User.query.filter_by(name=form.username.data).first()
         if foundUser!=None and bcrypt.check_password_hash(foundUser.password, form.password.data): 
-            session['logged_in']=True
+            # session['logged_in']=True
+            login_user(foundUser)
             flash('you were just logged in')
             return redirect(url_for('home'))
         else: 
             error = 'Invalid credentials, please try again. '
-        
-    if 'logged_in' in session:
-        return redirect(url_for('home'))
+
     return render_template("login.html", form=form, error=error)
 
 @app.route('/logout')
 @login_required
 def logout():
-    session.pop('logged_in', None)
+    # session.pop('logged_in', None)
+    logout_user()
     flash('you were just logged out')
     return redirect(url_for('welcome'))
 
