@@ -1,10 +1,12 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash, g
+from flask_bcrypt import Bcrypt
 from flask_sqlalchemy import SQLAlchemy
 from functools import wraps
 from dotenv import load_dotenv
 load_dotenv()
 
 app = Flask(__name__)
+bcrypt = Bcrypt(app)
 
 import os
 app.config.from_object(os.getenv('APP_SETTINGS')) # ...(dev mode right now, not prod mode)
@@ -32,17 +34,7 @@ def login_required(f):
 @app.route('/')
 @login_required
 def home():
-    # # .....1st version
-    # return "Hello World!" 
-
-    # # .....2nd version
-    # g.db = connect_db()
-    # cur = g.db.execute('select * from posts')
-    # posts = [dict(title=row[0], description=row[1]) for row in cur.fetchall()]
-    # g.db.close()
-
-    # .....3rd version
-    posts = db.session.query(BlogPost).all()
+    posts = BlogPost.query.all()
     return render_template("index.html", posts=posts) # posts=posts --> past our `posts` variable to index.html template
 
 @app.route('/welcome')
@@ -54,12 +46,14 @@ def login():
     error = None
     form = LoginForm()
     if form.validate_on_submit():
-        if form.username.data!='admin' or form.password.data!='admin':
-            error = 'Invalid credentials, please try again. '
-        else :
-            session['logged_in'] = True
+        foundUser = User.query.filter_by(name=form.username.data).first()
+        if foundUser!=None and bcrypt.check_password_hash(foundUser.password, form.password.data): 
+            session['logged_in']=True
             flash('you were just logged in')
             return redirect(url_for('home'))
+        else: 
+            error = 'Invalid credentials, please try again. '
+        
     if 'logged_in' in session:
         return redirect(url_for('home'))
     return render_template("login.html", form=form, error=error)
@@ -70,12 +64,6 @@ def logout():
     session.pop('logged_in', None)
     flash('you were just logged out')
     return redirect(url_for('welcome'))
-
-
-# def connect_db(): # to establish a database
-#     return sqlite3.connect(app.database)
-
-
 
 if __name__ == "__main__":
     app.run(debug=True) # `debug=True` gives us a fancier flask debugger in the browser
