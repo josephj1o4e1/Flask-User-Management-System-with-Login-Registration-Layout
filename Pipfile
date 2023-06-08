@@ -22,6 +22,7 @@ psycopg2 = "*"
 flask-migrate = "*"
 flask-script = "*"
 bcrypt = "*"
+flask-wtf = "*"
 
 [dev-packages]
 

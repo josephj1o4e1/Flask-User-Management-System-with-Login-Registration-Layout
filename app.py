@@ -15,6 +15,16 @@ db = SQLAlchemy(app)
 # import db schema
 from models import *
 
+# flask-wtf forms
+from flask_wtf import FlaskForm
+from wtforms import StringField, PasswordField, SubmitField
+from wtforms.validators import DataRequired
+
+class LoginForm(FlaskForm):
+    username = StringField('Username', validators=[DataRequired()])
+    password = PasswordField('Password', validators=[DataRequired()])
+    submit = SubmitField('Login')
+
 # login required decorator
 def login_required(f):
     @wraps(f)
@@ -51,16 +61,17 @@ def welcome():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     error = None
-    if request.method=='POST':
-        if request.form['username']!='admin' or request.form['password']!='admin':
+    form = LoginForm()
+    if form.validate_on_submit():
+        if form.username.data!='admin' or form.password.data!='admin':
             error = 'Invalid credentials, please try again. '
         else :
             session['logged_in'] = True
             flash('you were just logged in')
             return redirect(url_for('home'))
     if 'logged_in' in session:
-            return redirect(url_for('home'))
-    return render_template("login.html", error=error)
+        return redirect(url_for('home'))
+    return render_template("login.html", form=form, error=error)
 
 @app.route('/logout')
 @login_required
