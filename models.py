@@ -33,7 +33,7 @@ class User(db.Model):
     def __init__(self, name, email, password):
         self.name = name
         self.email = email
-        self.password = bcrypt.generate_password_hash(password) # default salt value = 12 rounds
+        self.password = bcrypt.generate_password_hash(password).decode('utf-8') # default salt value = 12 rounds
         self.is_authenticated = False
 
     def __repr__(self):

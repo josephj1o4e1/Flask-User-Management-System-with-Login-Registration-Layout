@@ -11,6 +11,7 @@ bcrypt = Bcrypt(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "/login"
+login_manager.login_message = ""
 
 import os
 app.config.from_object(os.getenv('APP_SETTINGS')) # ...(dev mode right now, not prod mode)
@@ -20,7 +21,7 @@ db = SQLAlchemy(app)
 
 # import db schema
 from models import *
-from forms import LoginForm
+from forms import LoginForm, RegisterForm
 
 # Gets the user information from userid, and store the retrieved data in the session cookie. 
 # load_user is a required callbackfunction to be defined for the user_loader decorator. 
@@ -68,6 +69,21 @@ def login():
             error = 'Invalid credentials, please try again. '
 
     return render_template("login.html", form=form, error=error)
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    form = RegisterForm()
+    if form.validate_on_submit():
+        user = User(
+            name=form.username.data,
+            email=form.email.data,
+            password=form.password.data
+        )
+        db.session.add(user)
+        db.session.commit()
+        login_user(user)
+        return redirect(url_for('home'))
+    return render_template('register.html', form=form)
 
 @app.route('/logout')
 @login_required

@@ -2,10 +2,10 @@
 
 {% block content %}
 
-<h1>Please login</h1>
+<h1>Please Register</h1>
 <br>
 
-<form class="form-signin" role="form" method="POST" action="{{url_for('login')}}">
+<form class="form-signin" role="form" method="POST" action="{{url_for('register')}}">
     {{ form.hidden_tag() }}
     <p>
         {{ form.username(size=20, placeholder='Username') }}
@@ -18,10 +18,30 @@
         {% endif %}
     </p>
     <p>
-        {{ form.password(size=20, placeholder='Password') }}
+        {{ form.email(size=20, placeholder='Email') }}
+        {% if form.email.errors %}
+            <ul class="errors">
+            {% for error in form.email.errors %}
+                <li>{{ error }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+    </p>
+    <p>
+        {{ form.password(size=20, placeholder='Create Password') }}
         {% if form.password.errors %}
             <ul class="errors">
             {% for error in form.password.errors %}
+                <li>{{ error }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+    </p>
+    <p>
+        {{ form.confirm(size=20, placeholder='Repeat password') }}
+        {% if form.confirm.errors %}
+            <ul class="errors">
+            {% for error in form.confirm.errors %}
                 <li>{{ error }}</li>
             {% endfor %}
             </ul>
@@ -39,8 +59,10 @@
     </p>
 </form>
 
-Please log in to access this page. Or <a href="{{url_for('register')}}">register here</a>.
 
 
+
+
+Already have an account? <a href="{{url_for('login')}}">Log in here</a>.
 
 {% endblock %}
