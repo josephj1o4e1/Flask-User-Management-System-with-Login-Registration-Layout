@@ -8,6 +8,7 @@ load_dotenv()
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
+
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "/login"
@@ -29,18 +30,6 @@ from forms import LoginForm, RegisterForm
 def load_user(user_id):
     return User.query.filter(User.id == int(user_id)).first()
     # return User.get_id(user_id)
-
-
-# # login required decorator
-# def login_required(f):
-#     @wraps(f)
-#     def wrap(*args, **kwargs):
-#         if 'logged_in' in session:
-#             return f(*args, **kwargs)
-#         else:
-#             flash('You need to login first.')
-#             return redirect(url_for('login'))
-#     return wrap 
 
 # set route. use a decorator to link a url to a function. (see flasknotes)
 # decorator @app.route('/'): before triggering home(), we need to detect if url '/' is requested by client before executing home().  
