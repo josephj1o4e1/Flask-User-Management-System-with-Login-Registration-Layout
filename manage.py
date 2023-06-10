@@ -18,17 +18,25 @@
 
 
 import os
-from flask import Flask
+import click
 from flask.cli import FlaskGroup
 from flask_migrate import Migrate
 
 from app import app, db
+from models import User
 
 app.config.from_object(os.environ['APP_SETTINGS'])
 migrate = Migrate(app, db)
 
 # Create the FlaskGroup instance
 cli = FlaskGroup(app)
+
+@app.cli.command("create_admin")
+@click.argument("name", required=False, default="admin")
+def create_admin(name):
+    """Creates the admin user."""
+    db.session.add(User(name=name, email="ad@min.com", password="admin", admin=True))
+    db.session.commit()
 
 if __name__ == '__main__':
     cli()
