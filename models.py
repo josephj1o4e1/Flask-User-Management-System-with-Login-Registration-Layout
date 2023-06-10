@@ -31,15 +31,19 @@ class User(db.Model):
     password = db.Column(db.String, nullable=False)
     registered_on = db.Column(db.DateTime, nullable=False)
     admin = db.Column(db.Boolean, nullable=False, default=False)
+    is_confirmed = db.Column(db.Boolean, nullable=False, default=False)
+    confirmed_on = db.Column(db.DateTime, nullable=True)
     posts = relationship("BlogPost", backref="author")
 
-    def __init__(self, name, email, password, admin=False):
+    def __init__(self, name, email, password, admin=False, is_confirmed=False, confirmed_on=None):
         self.name = name
         self.email = email
         self.password = bcrypt.generate_password_hash(password).decode('utf-8') # default salt value = 12 rounds
         self.is_authenticated = False
         self.registered_on = datetime.datetime.now()
         self.admin = admin
+        self.is_confirmed = is_confirmed
+        self.confirmed_on = confirmed_on
 
     def __repr__(self):
         return '<name {}'.format(self.name)

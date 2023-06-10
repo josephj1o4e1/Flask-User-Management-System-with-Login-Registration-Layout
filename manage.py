@@ -21,6 +21,7 @@ import os
 import click
 from flask.cli import FlaskGroup
 from flask_migrate import Migrate
+import datetime
 
 from app import app, db
 from models import User
@@ -35,7 +36,8 @@ cli = FlaskGroup(app)
 @click.argument("name", required=False, default="admin")
 def create_admin(name):
     """Creates the admin user."""
-    db.session.add(User(name=name, email="ad@min.com", password="admin", admin=True))
+    db.session.add(User(name=name, email="ad@min.com", password="admin", admin=True, is_confirmed=True,
+        confirmed_on=datetime.datetime.now())) # admin doesn't need email confirmation
     db.session.commit()
 
 if __name__ == '__main__':
