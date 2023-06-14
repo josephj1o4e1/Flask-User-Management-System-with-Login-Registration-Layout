@@ -12,6 +12,7 @@ with app.app_context():
     db.session.add(User("ShoheiOhtani", "ohtani@gmail.com", "shoheiohtani"))
     db.session.add(User("KevinDurant", "durant@hotmail.com", "kevindurant"))
     # db.session.add(User("admin", "ad@min.com", "admin"))
+    # db.session.add(User("Bill Gates", "gates@hotmail.com", "Microsoft1#"))
 
     # commit the changes
     db.session.commit()

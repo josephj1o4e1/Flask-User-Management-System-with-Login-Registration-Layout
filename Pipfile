@@ -25,6 +25,7 @@ flask-wtf = "*"
 flask-bcrypt = "*"
 flask-login = "*"
 email-validator = "*"
+flask-mail = "*"
 
 [dev-packages]
 

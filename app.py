@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, g
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
+from flask_mail import Mail
 from flask_login import LoginManager, login_user, login_required, logout_user
 # from functools import wraps
 from dotenv import load_dotenv
@@ -8,6 +9,7 @@ load_dotenv()
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
+mail = Mail(app)
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -15,6 +17,7 @@ login_manager.login_view = "/login"
 login_manager.login_message = ""
 
 import os
+import datetime
 app.config.from_object(os.getenv('APP_SETTINGS')) # ...(dev mode right now, not prod mode)
 
 # create the sqlalchemy object
@@ -23,6 +26,8 @@ db = SQLAlchemy(app)
 # import db schema
 from models import *
 from forms import LoginForm, RegisterForm
+from tokens import generate_confirmation_token, confirm_token
+from emails import send_email
 
 # Gets the user information from userid, and store the retrieved data in the session cookie. 
 # load_user is a required callbackfunction to be defined for the user_loader decorator. 
@@ -71,9 +76,37 @@ def register():
         )
         db.session.add(user)
         db.session.commit()
+
+        # token = generate_confirmation_token(user.email)
+        # confirm_url = url_for('confirm_email', token=token, _external=True) # _external=true adds the full absolute URL that includes the hostname and port
+        # html = render_template('activate.html', confirm_url=confirm_url)
+        # subject = "Please confirm your email"
+        # send_email(user.email, subject, html)
+
         login_user(user)
+
+        # flash('A confirmation email has been sent via email.', 'success')
         return redirect(url_for('home'))
+    
     return render_template('register.html', form=form)
+
+@app.route('/confirm/<token>')
+@login_required
+def confirm_email(token):
+    try:
+        email = confirm_token(token)
+    except:
+        flash('The confirmation link is invalid or has expired.', 'danger')
+    user = User.query.filter_by(email=email).first_or_404()
+    if user.is_confirmed:
+        flash('Account already confirmed. Please login.', 'success')
+    else:
+        user.is_confirmed = True
+        user.confirmed_on = datetime.datetime.now()
+        db.session.add(user)
+        db.session.commit()
+        flash('You have confirmed your account. Thanks!', 'success')
+    return redirect(url_for('home'))
 
 @app.route('/logout')
 @login_required
