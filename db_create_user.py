@@ -3,7 +3,7 @@ from app import db
 from models import User
 
 with app.app_context(): 
-    # insert data
+    # insert data for quick demo
     db.session.add(User("JosephChuang", "chuang@iu.edu", "josephchuang"))
     db.session.add(User("StephCurry", "curry@gmail.com", "stephcurry"))
     db.session.add(User("BabeRuth", "ruth@gmail.com", "baberuth"))
