@@ -11,3 +11,4 @@ __pycache__
 
 # config
 config.py
+db_create_user.py
