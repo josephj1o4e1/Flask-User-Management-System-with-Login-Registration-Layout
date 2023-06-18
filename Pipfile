@@ -26,6 +26,10 @@ flask-bcrypt = "*"
 flask-login = "*"
 email-validator = "*"
 flask-mail = "*"
+flask-dance = {extras = ["sqla"], version = "*"}
+requests = "*"
+oauthlib = "*"
+pyopenssl = "*"
 
 [dev-packages]
 
