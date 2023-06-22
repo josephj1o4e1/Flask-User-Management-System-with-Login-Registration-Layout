@@ -22,16 +22,16 @@ login_manager.login_view = "/login"
 login_manager.login_message = ""
 
 from models import * # import db schema
-from forms import LoginForm, RegisterForm
+from forms import LoginForm, RegisterForm, DeleteAccountForm
 from tokens import generate_confirmation_token, confirm_token
 from emails import send_email
 from utils import url_has_allowed_host_and_scheme
 
 # OAuth 2 client setup
-client = WebApplicationClient(app.config['OAUTH_CREDENTIALS']['google']['id'])
+google_client = WebApplicationClient(app.config['OAUTH_CREDENTIALS']['google']['id'])
 def get_google_provider_cfg(): # naive function to retrieve google oauth's provider config. Need to retrieve the base URI from the Discovery document using the `authorization_endpoint` metadata value.
     try:
-        response = requests.get(app.config['OAUTH_CREDENTIALS']['google']['disc_url'])
+        response = requests.get(app.config['OAUTH_CREDENTIALS']['google']['config_url'])
         response.raise_for_status()  # Raise an exception for 4xx or 5xx status codes
         return response.json()
     except requests.exceptions.RequestException as e:
@@ -39,6 +39,27 @@ def get_google_provider_cfg(): # naive function to retrieve google oauth's provi
         print(f"Error retrieving Google provider config: {e}")
         return None
 
+github_client = WebApplicationClient(app.config['OAUTH_CREDENTIALS']['github']['id'])
+def get_github_provider_cfg(): # naive function to retrieve google oauth's provider config. Need to retrieve the base URI from the Discovery document using the `authorization_endpoint` metadata value.
+    try:
+        response = requests.get(app.config['OAUTH_CREDENTIALS']['github']['config_url'])
+        response.raise_for_status()  # Raise an exception for 4xx or 5xx status codes
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        # Handle the exception here
+        print(f"Error retrieving GitHub provider config: {e}")
+        return None
+
+orcid_client = WebApplicationClient(app.config['OAUTH_CREDENTIALS']['orcid']['id'])
+def get_orcid_provider_cfg(): # naive function to retrieve google oauth's provider config. Need to retrieve the base URI from the Discovery document using the `authorization_endpoint` metadata value.
+    try:
+        response = requests.get(app.config['OAUTH_CREDENTIALS']['orcid']['config_url'])
+        response.raise_for_status()  # Raise an exception for 4xx or 5xx status codes
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        # Handle the exception here
+        print(f"Error retrieving ORCID provider config: {e}")
+        return None
 
 # Gets the user information from userid, and store the retrieved data in the session cookie. 
 # load_user is a required callbackfunction to be defined for the user_loader decorator. 
@@ -53,7 +74,8 @@ def load_user(user_id):
 @login_required
 def home():
     posts = BlogPost.query.all()
-    return render_template("index.html", posts=posts) # posts=posts --> past our `posts` variable to index.html template
+    form = DeleteAccountForm()
+    return render_template("index.html", form=form, posts=posts) # posts=posts --> past our `posts` variable to index.html template
 
 @app.route('/welcome')
 def welcome():
@@ -122,7 +144,7 @@ def google_login():
 
     # Use library to construct the request for Google login and provide
     # scopes that let you retrieve user's profile from Google
-    request_uri = client.prepare_request_uri(
+    request_uri = google_client.prepare_request_uri(
         authorization_endpoint,
         redirect_uri=request.base_url + "/authorized",
         scope=["openid", "email", "profile"],
@@ -130,7 +152,7 @@ def google_login():
     return redirect(request_uri)
 
 @app.route('/google_login/authorized')
-def authorized():
+def google_authorized():
     # Get authorization code Google sent back to you
     code = request.args.get("code")
 
@@ -140,7 +162,7 @@ def authorized():
     token_endpoint = google_provider_cfg["token_endpoint"]
 
     # Prepare and send a request to get tokens! Yay tokens!
-    token_url, headers, body = client.prepare_token_request(
+    token_url, headers, body = google_client.prepare_token_request(
         token_endpoint,
         authorization_response=request.url,
         redirect_url=request.base_url,
@@ -154,13 +176,13 @@ def authorized():
     )
 
     # Parse the tokens!
-    client.parse_request_body_response(json.dumps(token_response.json()))
+    google_client.parse_request_body_response(json.dumps(token_response.json()))
     
     # Now that you have tokens (yay) let's find and hit the URL
     # from Google that gives you the user's profile information,
     # including their Google profile image and email
     userinfo_endpoint = google_provider_cfg["userinfo_endpoint"]
-    uri, headers, body = client.add_token(userinfo_endpoint)
+    uri, headers, body = google_client.add_token(userinfo_endpoint)
     userinfo_response = requests.get(uri, headers=headers, data=body)
 
     # You want to make sure their email is verified.
@@ -201,6 +223,22 @@ def authorized():
     else:
         return "User email not available or not verified by Google.", 400
 
+@app.route('/github_login')
+def github_login():
+    pass
+
+@app.route('/github_login/authorized')
+def github_authorized():
+    pass
+
+@app.route('/orcid_login')
+def orcid_login():
+    pass
+
+@app.route('/orcid_login/authorized')
+def orcid_authorized():
+    pass
+
 
 @app.route('/confirm/<token>')
 @login_required
@@ -227,6 +265,20 @@ def logout():
     logout_user()
     flash('you were just logged out')
     return redirect(url_for('welcome'))
+
+@app.route('/delete_account', methods=['POST'])
+@login_required  # Ensure only authenticated users can access this route
+def delete_account():
+    # Delete the user account from the database
+    user = current_user  # using Flask-Login's current_user
+    db.session.delete(user)
+    db.session.commit()
+
+    # Log the user out
+    logout_user()
+    flash('You have DELETED your account!', 'success')
+    # Redirect the user to a confirmation page or any desired destination
+    return redirect(url_for('home'))
 
 if __name__ == "__main__":
     app.run(debug=True, ssl_context="adhoc") # `debug=True` gives us a fancier flask debugger in the browser

@@ -36,3 +36,6 @@ class RegisterForm(FlaskForm):
             ]
     )
     submit = SubmitField('Register')
+
+class DeleteAccountForm(FlaskForm):
+    submit = SubmitField('Delete Account')
