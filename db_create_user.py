@@ -3,6 +3,8 @@ from app import db
 from models import User
 
 with app.app_context(): 
+    # Delete all data rows in table "users" including the referenced data such as in the table "posts". 
+    db.session.execute(db.text('TRUNCATE TABLE users CASCADE'))
     # insert data for quick demo
     db.session.add(User("JosephChuang", "chuang@iu.edu", "josephchuang"))
     db.session.add(User("StephCurry", "curry@gmail.com", "stephcurry"))

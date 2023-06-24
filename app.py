@@ -121,18 +121,19 @@ def register():
             db.session.add(user)
             db.session.commit()
 
-            # token = generate_confirmation_token(user.email)
-            # confirm_url = url_for('confirm_email', token=token, _external=True) # _external=true adds the full absolute URL that includes the hostname and port
-            # html = render_template('activate.html', confirm_url=confirm_url)
-            # subject = "Please confirm your email"
-            # send_email(user.email, subject, html)
+            token = generate_confirmation_token(user.email)
+            confirm_url = url_for('confirm_email', token=token, _external=True) # _external=true adds the full absolute URL that includes the hostname and port
+            html = render_template('activate.html', confirm_url=confirm_url)
+            subject = "Please confirm your email"
+            send_email(user.email, subject, html)
+            
+            flash('A confirmation email has been sent via email. confirm before login. ', 'success')
 
             login_user(user)
             flash('you were just logged in')
-
-            # flash('A confirmation email has been sent via email.', 'success')
+            
             return redirect(url_for('home'))
-    
+
     return render_template('register.html', form=form)
 
 
@@ -239,7 +240,6 @@ def orcid_login():
 def orcid_authorized():
     pass
 
-
 @app.route('/confirm/<token>')
 @login_required
 def confirm_email(token):
@@ -248,12 +248,13 @@ def confirm_email(token):
     except:
         flash('The confirmation link is invalid or has expired.', 'danger')
     user = User.query.filter_by(email=email).first_or_404()
+    print(f'email= {email}')
     if user.is_confirmed:
         flash('Account already confirmed. Please login.', 'success')
     else:
         user.is_confirmed = True
         user.confirmed_on = datetime.datetime.now()
-        db.session.add(user)
+        db.session.add(user) # "db.session.add" is also used to track changes made to existing objects. 
         db.session.commit()
         flash('You have confirmed your account. Thanks!', 'success')
     return redirect(url_for('home'))

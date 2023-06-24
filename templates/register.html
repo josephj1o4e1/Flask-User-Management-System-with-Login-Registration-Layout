@@ -69,6 +69,12 @@
 
 Already have an account? <a href="{{url_for('login')}}">Log in here</a>.
 <br>
-You can also <a href="{{url_for('google_login')}}">Log in with Google</a>.
-
+You can also Log in with: 
+<br> 
+<a href="{{url_for('google_login')}}">Google</a>
+<br> 
+<a href="{{url_for('github_login')}}">GitHub</a> (not finished yet)
+<br>
+<a href="{{url_for('orcid_login')}}">ORCID</a> (not finished yet)
+<br> 
 {% endblock %}
