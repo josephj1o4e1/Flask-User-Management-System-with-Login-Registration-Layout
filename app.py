@@ -118,6 +118,17 @@ def register():
                 password=form.password.data,
                 is_confirmed=False
             )
+            foundEmail = User.query.filter_by(email=form.email.data).first()
+            if foundEmail:
+                flash('Email has been registered, please login. ')
+                return redirect(url_for('login'))
+            
+            # do later: unique username is the last rule. suggest usernames and direct login
+            foundUser = User.query.filter_by(name=form.username.data).first()
+            if foundUser:
+                flash('Username has been taken, please try another one. ')
+                return redirect(url_for('register'))
+            
             db.session.add(user)
             db.session.commit()
 
