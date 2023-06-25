@@ -26,7 +26,8 @@ class User(db.Model):
     __tablename__ = "users"
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String, unique=True, nullable=False)
+    name = db.Column(db.String, nullable=False)
+    username = db.Column(db.String, unique=True, nullable=False)
     email = db.Column(db.String, unique=True, nullable=False)
     password = db.Column(db.String, nullable=False)
     registered_on = db.Column(db.DateTime, nullable=False)
@@ -35,8 +36,9 @@ class User(db.Model):
     confirmed_on = db.Column(db.DateTime, nullable=True)
     posts = relationship("BlogPost", backref="author")
 
-    def __init__(self, name, email, password, admin=False, is_confirmed=False, confirmed_on=None):
+    def __init__(self, name, username, email, password, admin=False, is_confirmed=False, confirmed_on=None):
         self.name = name
+        self.username = username
         self.email = email
         self.password = bcrypt.generate_password_hash(password).decode('utf-8') # default salt value = 12 rounds
         self.is_authenticated = False
@@ -46,7 +48,7 @@ class User(db.Model):
         self.confirmed_on = confirmed_on
 
     def __repr__(self):
-        return '<name {}'.format(self.name)
+        return '<name {}'.format(self.username)
     
     def is_active(self):
         """True, as all users are active."""
@@ -74,7 +76,8 @@ class UserOAuth(db.Model):
     facebook_id = db.Column(db.String, unique=True, nullable=True)
     github_id = db.Column(db.String, unique=True, nullable=True)
     orcid_id = db.Column(db.String, unique=True, nullable=True)
-    name = db.Column(db.String, unique=True, nullable=False)
+    name = db.Column(db.String, nullable=False)
+    username = db.Column(db.String, unique=True, nullable=False)
     email = db.Column(db.String, unique=True, nullable=False)
     profile_pic = db.Column(db.String, nullable=True)
     registered_on = db.Column(db.DateTime, nullable=False)
@@ -83,8 +86,9 @@ class UserOAuth(db.Model):
     confirmed_on = db.Column(db.DateTime, nullable=True)
     # posts = relationship("BlogPost", backref="author")
 
-    def __init__(self, name, email, google_id=None, facebook_id=None, github_id=None, orcid_id=None, profile_pic=None, admin=False, is_confirmed=False, confirmed_on=None):
+    def __init__(self, name, username, email, google_id=None, facebook_id=None, github_id=None, orcid_id=None, profile_pic=None, admin=False, is_confirmed=False, confirmed_on=None):
         self.name = name
+        self.username = username
         self.email = email
         self.profile_pic = profile_pic
         self.google_id = google_id
@@ -98,7 +102,7 @@ class UserOAuth(db.Model):
         self.confirmed_on = confirmed_on
 
     def __repr__(self):
-        return '<name {}'.format(self.name)
+        return '<name {}'.format(self.username)
     
     def is_active(self):
         """True, as all users are active."""

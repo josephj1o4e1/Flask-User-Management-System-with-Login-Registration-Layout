@@ -87,7 +87,7 @@ def login():
     form = LoginForm()
     if request.method == 'POST':
         if form.validate_on_submit():
-            foundUser = User.query.filter_by(name=form.username.data).first()
+            foundUser = User.query.filter((User.username==form.username_email.data) | (User.email==form.username_email.data)).first()
             if foundUser!=None and bcrypt.check_password_hash(foundUser.password, form.password.data): 
                 # session['logged_in']=True
                 login_user(foundUser)

@@ -8,6 +8,16 @@
 <form class="form-signin" role="form" method="POST" action="{{url_for('register')}}">
     {{ form.hidden_tag() }}
     <p>
+        {{ form.name(size=20, placeholder='Full Name') }}
+        {% if form.name.errors %}
+            <ul class="errors">
+            {% for error in form.name.errors %}
+                <li>{{ error }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+    </p>
+    <p>
         {{ form.username(size=20, placeholder='Username') }}
         {% if form.username.errors %}
             <ul class="errors">

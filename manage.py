@@ -36,7 +36,7 @@ cli = FlaskGroup(app)
 @click.argument("name", required=False, default="admin")
 def create_admin(name):
     """Creates the admin user."""
-    db.session.add(User(name=name, email="ad@min.com", password="admin", admin=True, is_confirmed=True,
+    db.session.add(User(name=name, username="ad@min.com", email="ad@min.com", password="admin", admin=True, is_confirmed=True,
         confirmed_on=datetime.datetime.now())) # admin doesn't need email confirmation
     db.session.commit()
 

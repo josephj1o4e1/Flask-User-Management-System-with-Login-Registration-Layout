@@ -4,14 +4,18 @@ from wtforms import StringField, PasswordField, SubmitField, EmailField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, Regexp
 
 class LoginForm(FlaskForm):
-    username = StringField('Username', validators=[DataRequired()])
+    username_email = StringField('Username or Email', validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired()])
     submit = SubmitField('Login')
 
 class RegisterForm(FlaskForm):
+    name = StringField(
+        'Full Name',
+        validators=[DataRequired()]
+    )
     username = StringField(
         'Username',
-        validators=[DataRequired(), Length(min=3, max=25)]
+        validators=[DataRequired(), Length(min=5, max=25)]
     )
     email = EmailField(
         'Email',
