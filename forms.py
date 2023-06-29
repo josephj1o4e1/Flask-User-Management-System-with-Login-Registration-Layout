@@ -1,6 +1,6 @@
 # flask-wtf forms
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, EmailField
+from wtforms import StringField, PasswordField, SubmitField, EmailField, BooleanField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, Regexp
 
 class LoginForm(FlaskForm):
@@ -39,6 +39,8 @@ class RegisterForm(FlaskForm):
             EqualTo('password', message='Passwords must match.')
             ]
     )
+    
+    # terms = BooleanField('I have read and agree to the terms', validators=[DataRequired()])
     submit = SubmitField('Register')
 
 class DeleteAccountForm(FlaskForm):

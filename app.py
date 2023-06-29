@@ -75,7 +75,10 @@ def load_user(user_id):
 def home():
     posts = BlogPost.query.all()
     form = DeleteAccountForm()
-    return render_template("index.html", form=form, posts=posts) # posts=posts --> past our `posts` variable to index.html template
+    status = "Not Confirmed"
+    if current_user.is_confirmed:
+        status = "Confirmed"
+    return render_template("index.html", form=form, posts=posts, status=status) # posts=posts --> past our `posts` variable to index.html template
 
 @app.route('/welcome')
 def welcome():
@@ -85,8 +88,12 @@ def welcome():
 def login():
     error = None
     form = LoginForm()
+    rform = RegisterForm()
+    activePill = request.form.get('active_pill')
+    
     if request.method == 'POST':
-        if form.validate_on_submit():
+        print(f'activePill={activePill} and form.validate_on_submit()={form.validate_on_submit()} and rform.validate_on_submit()={rform.validate_on_submit()}')
+        if activePill=="active_pill_login" and form.validate_on_submit():
             foundUser = User.query.filter((User.username==form.username_email.data) | (User.email==form.username_email.data)).first()
             if foundUser!=None and bcrypt.check_password_hash(foundUser.password, form.password.data): 
                 # session['logged_in']=True
@@ -104,31 +111,26 @@ def login():
                 # return redirect(url_for('home'))
             else: 
                 error = 'Invalid credentials, please try again. '
-
-    return render_template("login.html", form=form, error=error)
-
-@app.route('/register', methods=['GET', 'POST'])
-def register():
-    form = RegisterForm()
-    if request.method == 'POST':
-        if form.validate_on_submit():
+        elif activePill=="active_pill_register" and rform.validate_on_submit():
+            print("!!!!!!!!!!!!!!!")
             user = User(
-                name=form.username.data,
-                email=form.email.data,
-                password=form.password.data,
+                name=rform.name.data,
+                username=rform.username.data,
+                email=rform.email.data,
+                password=rform.password.data,
                 is_confirmed=False
             )
-            foundEmail = User.query.filter_by(email=form.email.data).first()
+            foundEmail = User.query.filter_by(email=rform.email.data).first()
             if foundEmail:
                 flash('Email has been registered, please login. ')
                 return redirect(url_for('login'))
             
             # do later: unique username is the last rule. suggest usernames and direct login
-            foundUser = User.query.filter_by(name=form.username.data).first()
+            foundUser = User.query.filter_by(name=rform.username.data).first()
             if foundUser:
                 flash('Username has been taken, please try another one. ')
                 return redirect(url_for('register'))
-            
+
             db.session.add(user)
             db.session.commit()
 
@@ -145,7 +147,50 @@ def register():
             
             return redirect(url_for('home'))
 
-    return render_template('register.html', form=form)
+    # return render_template("login.html", form=form, error=error)
+    return render_template("loginRegist.html", form=form, rform=rform, error=error)
+
+# @app.route('/register', methods=['GET', 'POST'])
+# def register():
+#     form = RegisterForm()
+#     if request.method == 'POST':
+#         if form.validate_on_submit():
+#             user = User(
+#                 name=form.name.data,
+#                 username=form.username.data,
+#                 email=form.email.data,
+#                 password=form.password.data,
+#                 is_confirmed=False
+#             )
+#             foundEmail = User.query.filter_by(email=form.email.data).first()
+#             if foundEmail:
+#                 flash('Email has been registered, please login. ')
+#                 return redirect(url_for('login'))
+            
+#             # do later: unique username is the last rule. suggest usernames and direct login
+#             foundUser = User.query.filter_by(name=form.username.data).first()
+#             if foundUser:
+#                 flash('Username has been taken, please try another one. ')
+#                 return redirect(url_for('register'))
+
+#             db.session.add(user)
+#             db.session.commit()
+
+#             token = generate_confirmation_token(user.email)
+#             confirm_url = url_for('confirm_email', token=token, _external=True) # _external=true adds the full absolute URL that includes the hostname and port
+#             html = render_template('activate.html', confirm_url=confirm_url)
+#             subject = "Please confirm your email"
+#             send_email(user.email, subject, html)
+            
+#             flash('A confirmation email has been sent via email. confirm before login. ', 'success')
+
+#             login_user(user)
+#             flash('you were just logged in')
+            
+#             return redirect(url_for('home'))
+
+#     # return render_template('register.html', form=form)
+#     return render_template("loginRegist.html", rform=form)
 
 
 @app.route('/google_login')
@@ -207,13 +252,14 @@ def google_authorized():
         # users_name = userinfo_response.json()["given_name"]
         users_name = userinfo_response.json()["name"]
 
-        foundUser = UserOAuth.query.filter_by(name=users_name).first()
-        print(f'!!!! users_name = {users_name}')
-        print(f'!! foundUser = {foundUser}')
+        foundUser = UserOAuth.query.filter_by(email=users_email).first()
+        # print(f'!!!! users_name = {users_name}')
+        # print(f'!! foundUser = {foundUser}')
         if foundUser==None: 
             foundUser = UserOAuth(
                 google_id=unique_id, 
                 name=users_name,
+                username=users_email,
                 email=users_email,
                 profile_pic=picture
             )        
@@ -237,7 +283,7 @@ def google_authorized():
 
 @app.route('/github_login')
 def github_login():
-    pass
+    return render_template("notfinished.html")
 
 @app.route('/github_login/authorized')
 def github_authorized():
@@ -245,11 +291,21 @@ def github_authorized():
 
 @app.route('/orcid_login')
 def orcid_login():
-    pass
+    return render_template("notfinished.html")
 
 @app.route('/orcid_login/authorized')
 def orcid_authorized():
     pass
+
+@app.route('/facebook_login')
+def facebook_login():
+    return render_template("notfinished.html")
+
+@app.route('/facebook_login/authorized')
+def facebook_authorized():
+    pass
+
+
 
 @app.route('/confirm/<token>')
 @login_required

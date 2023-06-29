@@ -1,8 +1,9 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h1>Hi {{ current_user.username }}, welcome to Flask-Demo! </h1>
 
+<h1>Hi {{ current_user.username }}, welcome to Flask-Demo! </h1>
+{{status}}
 <br>
 <p>Click <a href="/logout">here</a> to logout.</p>
 <br><br>
@@ -30,5 +31,6 @@
   
   
 {% endif %}
+
 
 {% endblock %}

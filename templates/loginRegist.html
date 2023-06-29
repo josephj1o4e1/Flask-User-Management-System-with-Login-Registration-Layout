@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+
+{% block css %}
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/loginRegist.css') }}">
+{% endblock %}
+
+
+{% block content %}
+
+<!-- Pills navs -->
+<ul class="nav nav-pills nav-justified mb-3" id="ex1" role="tablist">
+    <li class="nav-item" role="presentation">
+        <a class="nav-link active" id="tab-login" data-mdb-toggle="pill" href="#pills-login" role="tab"
+            aria-controls="pills-login" aria-selected="true">Login</a>
+    </li>
+    <li class="nav-item" role="presentation">
+        <a class="nav-link" id="tab-register" data-mdb-toggle="pill" href="#pills-register" role="tab"
+            aria-controls="pills-register" aria-selected="false">Register</a>
+    </li>
+</ul>
+<!-- Pills navs -->
+
+<!-- Pills content -->
+<div class="tab-content">
+    <div class="tab-pane fade show active" id="pills-login" role="tabpanel" aria-labelledby="tab-login">
+        <form class="form-signin" role="form" method="POST" action="{{url_for('login')}}">
+            {{ form.hidden_tag() }}
+            <input type="hidden" name="active_pill" value="active_pill_login">
+            <div class="text-center mb-3">
+                <p>Sign in with:</p>
+                <a href="{{url_for('facebook_login')}}">
+                    <button type="button" class="btn btn-link btn-floating mx-1" title="Sign in with Facebook">
+                        <i class="fab fa-facebook-f"></i>
+                    </button>
+                </a>
+
+                <a href="{{url_for('google_login')}}">
+                    <button type="button" class="btn btn-link btn-floating mx-1" title="Sign in with Google">
+                        <i class="fab fa-google"></i>
+                    </button>
+                </a>
+
+                <a href="{{url_for('orcid_login')}}">
+                    <button type="button" class="btn btn-link btn-floating mx-1" title="Sign in with ORCID">
+                        <i class="fab fa-orcid"></i>
+                    </button>
+                </a>
+
+                <a href="{{url_for('github_login')}}">
+                    <button type="button" class="btn btn-link btn-floating mx-1" title="Sign in with GitHub">
+                        <i class="fab fa-github"></i>
+                    </button>
+                </a>
+            </div>
+
+            <p class="text-center">or:</p>
+
+            <!-- Email input -->
+            <div class="form-outline mb-4">
+                {{ form.username_email(class="form-control", id="loginName") }}
+                <label class="form-label" for="loginName">Email or username</label>
+            </div>
+
+            <!-- Password input -->
+            <div class="form-outline mb-4">
+                {{ form.password(class="form-control", id="loginPassword") }}
+                <label class="form-label" for="loginPassword">Password</label>
+            </div>
+
+            <!-- 2 column grid layout -->
+            <div class="row mb-4">
+                <div class="col-md-6 d-flex justify-content-center">
+                    <!-- Checkbox -->
+                    <div class="form-check mb-3 mb-md-0">
+                        <input class="form-check-input" type="checkbox" value="" id="loginCheck" checked />
+                        <label class="form-check-label" for="loginCheck"> Remember me </label>
+                    </div>
+                </div>
+
+                <div class="col-md-6 d-flex justify-content-center">
+                    <!-- Simple link -->
+                    <a href="#!">Forgot password?</a>
+                </div>
+            </div>
+
+            <!-- Submit button -->
+            <!-- <button type="submit" class="btn btn-primary btn-block mb-4">Log in</button> -->
+            {{ form.submit(class="btn btn-primary btn-block mb-4", id="submit-login") }}
+
+        </form>
+    </div>
+    <div class="tab-pane fade" id="pills-register" role="tabpanel" aria-labelledby="tab-register">
+        <form class="form-signin" role="form" method="POST" action="{{url_for('login')}}" onsubmit="return validateForm()"> <!--onsubmit="return validateForm()"-->
+            {{ rform.hidden_tag() }}
+            <input type="hidden" name="active_pill" value="active_pill_register">
+            <div class="text-center mb-3">
+                <p>Register with:</p>
+                <button type="button" class="btn btn-link btn-floating mx-1" title="Sign in with Facebook">
+                    <i class="fab fa-facebook-f"></i>
+                </button>
+
+                <a href="{{url_for('google_login')}}">
+                    <button type="button" class="btn btn-link btn-floating mx-1" title="Sign in with Google">
+                        <i class="fab fa-google"></i>
+                    </button>
+                </a>
+
+                <button type="button" class="btn btn-link btn-floating mx-1" title="Sign in with ORCID">
+                    <i class="fab fa-orcid"></i>
+                </button>
+
+                <button type="button" class="btn btn-link btn-floating mx-1" title="Sign in with GitHub">
+                    <i class="fab fa-github"></i>
+                </button>
+            </div>
+
+            <p class="text-center">or:</p>
+
+            <!-- Name input -->
+            <div class="form-outline mb-4">
+                {{ rform.name(class="form-control", id="registerName") }}
+                <label class="form-label" for="registerName">Full Name</label>
+            </div>
+
+            <!-- Username input -->
+            <div class="form-outline mb-4">
+                {{ rform.username(class="form-control", id="registerUsername") }}
+                <label class="form-label" for="registerUsername">Username</label>
+            </div>
+
+            <!-- Email input -->
+            <div class="form-outline mb-4">
+                {{ rform.email(class="form-control", id="registerEmail") }}
+                <label class="form-label" for="registerEmail">Email</label>
+            </div>
+
+            <!-- Password input -->
+            <div class="form-outline mb-4">
+                {{ rform.password(class="form-control", id="registerPassword") }}
+                <label class="form-label" for="registerPassword">Password</label>
+            </div>
+
+            <!-- Repeat Password input -->
+            <div class="form-outline mb-4">
+                {{ rform.confirm(class="form-control", id="registerRepeatPassword") }}
+                <label class="form-label" for="registerRepeatPassword">Repeat password</label>
+            </div>
+
+            <!-- Checkbox -->
+            <div class="form-check d-flex justify-content-center mb-4">
+                <input class="form-check-input me-2" type="checkbox" value="" id="registerCheck" 
+                    aria-describedby="registerCheckHelpText" />
+                <label class="form-check-label" for="registerCheck">
+                    I have read and agree to the terms
+                </label>
+            </div>
+
+            <!-- Submit button -->
+            <!-- <button type="submit" class="btn btn-primary btn-block mb-3">Register</button> -->
+            {{ rform.submit(class="btn btn-primary btn-block mb-3", id="submit-register") }}
+            {% if rform.errors %}
+                {{ rform.errors }}
+            {% endif %}
+        </form>
+    </div>
+</div>
+<!-- Pills content -->
+
+
+<script>
+    function validateForm() {
+        let checkbox = document.getElementById('registerCheck');
+
+        if (!checkbox.checked) {
+            alert("Please agree to the terms and conditions.");
+            return false; // Prevent form submission
+        }
+
+        return true; // Allow form submission
+    }
+</script>
+    
+
+{% endblock %}

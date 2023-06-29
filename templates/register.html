@@ -39,7 +39,7 @@
     </p>
     <p>
         {{ form.password(size=20, placeholder='Create Password') }}
-        {% autoescape false %}
+        <!-- {% autoescape false %} -->
         {% if form.password.errors %}
             <ul class="errors">
             {% for error in form.password.errors %}
@@ -47,11 +47,11 @@
             {% endfor %}
             </ul>
         {% endif %}
-        {% endautoescape %}
+        <!-- {% endautoescape %} -->
     </p>
     <p>
         {{ form.confirm(size=20, placeholder='Repeat password') }}
-        {% autoescape false %}
+        <!-- {% autoescape false %} -->
         {% if form.confirm.errors %}
             <ul class="errors">
             {% for error in form.confirm.errors %}
@@ -59,7 +59,7 @@
             {% endfor %}
             </ul>
         {% endif %}
-        {% endautoescape %}
+        <!-- {% endautoescape %} -->
     </p>
     <p>
         {{ form.submit(class="btn btn-sm btn-success") }}
@@ -87,4 +87,6 @@ You can also Log in with:
 <br>
 <a href="{{url_for('orcid_login')}}">ORCID</a> (not finished yet)
 <br> 
+
+
 {% endblock %}
