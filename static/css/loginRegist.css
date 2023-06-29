@@ -1,4 +1,14 @@
 .container {
-    max-width: 400px; /* Adjust the value as needed */
-    margin: 0 auto; /* Center the container horizontally */
+    border: solid rgb(163, 163, 163);
+    border-width: thin; 
+    border-radius: 5px;
+
+    max-width: 30em; 
+    /* Adjust the value as needed */
+    
+    margin: 0 auto; 
+    /* Center the container horizontally */
+
+    transform: translateY(10em);
+    /* Center the container vertically */
 }
