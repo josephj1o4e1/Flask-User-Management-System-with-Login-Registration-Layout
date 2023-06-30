@@ -11,4 +11,6 @@
 
     transform: translateY(10em);
     /* Center the container vertically */
+
+    padding: 1.2em;
 }
