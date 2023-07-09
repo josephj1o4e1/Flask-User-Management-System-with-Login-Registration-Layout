@@ -92,7 +92,6 @@ def login():
     activePill = request.form.get('active_pill')
     
     if request.method == 'POST':
-        print(f'activePill={activePill} and form.validate_on_submit()={form.validate_on_submit()} and rform.validate_on_submit()={rform.validate_on_submit()}')
         if activePill=="active_pill_login" and form.validate_on_submit():
             foundUser = User.query.filter((User.username==form.username_email.data) | (User.email==form.username_email.data)).first()
             if foundUser!=None and bcrypt.check_password_hash(foundUser.password, form.password.data): 
@@ -112,7 +111,6 @@ def login():
             else: 
                 error = 'Invalid credentials, please try again. '
         elif activePill=="active_pill_register" and rform.validate_on_submit():
-            print("!!!!!!!!!!!!!!!")
             user = User(
                 name=rform.name.data,
                 username=rform.username.data,
@@ -120,16 +118,17 @@ def login():
                 password=rform.password.data,
                 is_confirmed=False
             )
-            foundEmail = User.query.filter_by(email=rform.email.data).first()
-            if foundEmail:
-                flash('Email has been registered, please login. ')
-                return redirect(url_for('login'))
+            # foundEmail = User.query.filter_by(email=rform.email.data).first()
+            # # only requires email to be unique
+            # if foundEmail:
+            #     flash('This Email has been registered before. Please log in. ')
+            #     return redirect(url_for('login'))
             
-            # do later: unique username is the last rule. suggest usernames and direct login
-            foundUser = User.query.filter_by(name=rform.username.data).first()
-            if foundUser:
-                flash('Username has been taken, please try another one. ')
-                return redirect(url_for('register'))
+            # # do later: unique username is the last rule. suggest usernames and direct login
+            # foundUser = User.query.filter_by(name=rform.username.data).first()
+            # if foundUser:
+            #     flash('Username has been taken, please try another one. ')
+            #     return redirect(url_for('login'))
 
             db.session.add(user)
             db.session.commit()
@@ -144,54 +143,19 @@ def login():
 
             login_user(user)
             flash('you were just logged in')
+
+            next = request.args.get('next')
+            # # url_has_allowed_host_and_scheme should check if the url is safe
+            # # for redirects, meaning it matches the request host.
+            # # See Django's url_has_allowed_host_and_scheme for an example.
+            # if not url_has_allowed_host_and_scheme(next, request.host):
+            #     return abort(400, message="redirect url is not safe.")
             
-            return redirect(url_for('home'))
+            return redirect(next or url_for('home'))
+            # return redirect(url_for('home'))
 
     # return render_template("login.html", form=form, error=error)
     return render_template("loginRegist.html", form=form, rform=rform, error=error)
-
-# @app.route('/register', methods=['GET', 'POST'])
-# def register():
-#     form = RegisterForm()
-#     if request.method == 'POST':
-#         if form.validate_on_submit():
-#             user = User(
-#                 name=form.name.data,
-#                 username=form.username.data,
-#                 email=form.email.data,
-#                 password=form.password.data,
-#                 is_confirmed=False
-#             )
-#             foundEmail = User.query.filter_by(email=form.email.data).first()
-#             if foundEmail:
-#                 flash('Email has been registered, please login. ')
-#                 return redirect(url_for('login'))
-            
-#             # do later: unique username is the last rule. suggest usernames and direct login
-#             foundUser = User.query.filter_by(name=form.username.data).first()
-#             if foundUser:
-#                 flash('Username has been taken, please try another one. ')
-#                 return redirect(url_for('register'))
-
-#             db.session.add(user)
-#             db.session.commit()
-
-#             token = generate_confirmation_token(user.email)
-#             confirm_url = url_for('confirm_email', token=token, _external=True) # _external=true adds the full absolute URL that includes the hostname and port
-#             html = render_template('activate.html', confirm_url=confirm_url)
-#             subject = "Please confirm your email"
-#             send_email(user.email, subject, html)
-            
-#             flash('A confirmation email has been sent via email. confirm before login. ', 'success')
-
-#             login_user(user)
-#             flash('you were just logged in')
-            
-#             return redirect(url_for('home'))
-
-#     # return render_template('register.html', form=form)
-#     return render_template("loginRegist.html", rform=form)
-
 
 @app.route('/google_login')
 def google_login():
@@ -314,6 +278,7 @@ def confirm_email(token):
         email = confirm_token(token)
     except:
         flash('The confirmation link is invalid or has expired.', 'danger')
+
     user = User.query.filter_by(email=email).first_or_404()
     print(f'email= {email}')
     if user.is_confirmed:

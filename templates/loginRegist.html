@@ -148,18 +148,20 @@
 
             <!-- Checkbox -->
             <div class="form-check d-flex justify-content-center mb-4">
-                <input class="form-check-input me-2" type="checkbox" value="" id="registerCheck" 
-                    aria-describedby="registerCheckHelpText" />
+                <!-- <input class="form-check-input me-2" type="checkbox" value="" id="registerCheck" 
+                    aria-describedby="registerCheckHelpText" /> -->
+                {{ rform.terms(class="form-check-input me-2", type="checkbox", id="registerCheck", **{'aria-describedby':"registerCheckHelpText"}) }} 
                 <label class="form-check-label" for="registerCheck">
                     I have read and agree to the terms
                 </label>
+                <!-- <span id="registerCheckHelpText" class="form-text">Please read the terms and conditions carefully before proceeding.</span> -->
             </div>
 
             <!-- Submit button -->
             <!-- <button type="submit" class="btn btn-primary btn-block mb-3">Register</button> -->
             {{ rform.submit(class="btn btn-primary btn-block mb-3", id="submit-register") }}
             {% if rform.errors %}
-                {{ rform.errors }}
+                Form Error: {{ rform.errors }}
             {% endif %}
         </form>
     </div>
@@ -169,12 +171,26 @@
 
 <script>
     function validateForm() {
+        let alertmessage='';
         let checkbox = document.getElementById('registerCheck');
+        let username = document.getElementById('registerUsername');
+        // let confirm_msg = document.getElementById('registerRepeatPassword');
+        // console.log(confirm_msg);
 
         if (!checkbox.checked) {
-            alert("Please agree to the terms and conditions.");
+            alertmessage.concat("Please agree to the terms and conditions.", '\n');
+        }
+
+        // if () {
+            
+        // }
+
+        if (alertmessage) {
+            alert(alertmessage);
             return false; // Prevent form submission
         }
+        
+
 
         return true; // Allow form submission
     }
