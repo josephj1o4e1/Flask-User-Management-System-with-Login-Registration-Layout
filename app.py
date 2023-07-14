@@ -6,6 +6,7 @@ from flask_mail import Mail
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from oauthlib.oauth2 import WebApplicationClient
 import requests
+from functools import wraps
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -61,6 +62,17 @@ def get_orcid_provider_cfg(): # naive function to retrieve google oauth's provid
         print(f"Error retrieving ORCID provider config: {e}")
         return None
 
+facebook_client = WebApplicationClient(app.config['OAUTH_CREDENTIALS']['facebook']['id'])
+def get_facebook_provider_cfg(): # naive function to retrieve google oauth's provider config. Need to retrieve the base URI from the Discovery document using the `authorization_endpoint` metadata value.
+    try:
+        response = requests.get(app.config['OAUTH_CREDENTIALS']['facebook']['config_url'])
+        response.raise_for_status()  # Raise an exception for 4xx or 5xx status codes
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        # Handle the exception here
+        print(f"Error retrieving Google provider config: {e}")
+        return None
+
 # Gets the user information from userid, and store the retrieved data in the session cookie. 
 # load_user is a required callbackfunction to be defined for the user_loader decorator. 
 @login_manager.user_loader
@@ -68,10 +80,21 @@ def load_user(user_id):
     return User.query.filter(User.id == int(user_id)).first() or UserOAuth.query.filter(UserOAuth.id == int(user_id)).first()
     # return User.get_id(user_id)
 
+def check_confirmed(func):
+    @wraps(func)
+    def decorated_function(*args, **kwargs):
+        if current_user.is_confirmed is False:
+            flash('Please confirm your account!', 'warning')
+            return redirect(url_for('unconfirmed'))
+        return func(*args, **kwargs)
+
+    return decorated_function
+
 # set route. use a decorator to link a url to a function. (see flasknotes)
 # decorator @app.route('/'): before triggering home(), we need to detect if url '/' is requested by client, and later do the login confirmation before executing home().  
 @app.route('/')
 @login_required
+@check_confirmed
 def home():
     posts = BlogPost.query.all()
     form = DeleteAccountForm()
@@ -92,10 +115,14 @@ def login():
     activePill = request.form.get('active_pill')
     
     if request.method == 'POST':
+        # LOGIN
         if activePill=="active_pill_login" and form.validate_on_submit():
             foundUser = User.query.filter((User.username==form.username_email.data) | (User.email==form.username_email.data)).first()
             if foundUser!=None and bcrypt.check_password_hash(foundUser.password, form.password.data): 
-                # session['logged_in']=True
+                # if not foundUser.is_confirmed: 
+                #     flash('Please confirm your email first. ')
+                #     return render_template("loginRegist.html", form=form, rform=rform, error=error)
+
                 login_user(foundUser)
                 flash('you were just logged in')
 
@@ -110,6 +137,7 @@ def login():
                 # return redirect(url_for('home'))
             else: 
                 error = 'Invalid credentials, please try again. '
+        # LOGIN
         elif activePill=="active_pill_register" and rform.validate_on_submit():
             user = User(
                 name=rform.name.data,
@@ -144,14 +172,15 @@ def login():
             login_user(user)
             flash('you were just logged in')
 
-            next = request.args.get('next')
+            # next = request.args.get('next')
             # # url_has_allowed_host_and_scheme should check if the url is safe
             # # for redirects, meaning it matches the request host.
             # # See Django's url_has_allowed_host_and_scheme for an example.
             # if not url_has_allowed_host_and_scheme(next, request.host):
             #     return abort(400, message="redirect url is not safe.")
             
-            return redirect(next or url_for('home'))
+            return redirect(url_for('login'))
+            # return redirect(next or url_for('home'))
             # return redirect(url_for('home'))
 
     # return render_template("login.html", form=form, error=error)
@@ -270,6 +299,23 @@ def facebook_authorized():
     pass
 
 
+@app.route('/unconfirmed')
+@login_required
+def unconfirmed():
+    next = request.args.get('next')
+    if current_user.is_confirmed: # If the user already confirmed the link and refreshes the "/unconfirmed" page, it will go to (next or homepage). 
+        return redirect(next or url_for('home'))
+    
+    return render_template('unconfirmed.html')
+
+@app.route('/invalidlink')
+@login_required
+def invalidLink():
+    next = request.args.get('next')
+    if current_user.is_confirmed: # If the user already confirmed the link and refreshes the "/unconfirmed" page, it will go to (next or homepage). 
+        return redirect(next or url_for('home'))
+    
+    return render_template('invalidLink.html')
 
 @app.route('/confirm/<token>')
 @login_required
@@ -277,7 +323,8 @@ def confirm_email(token):
     try:
         email = confirm_token(token)
     except:
-        flash('The confirmation link is invalid or has expired.', 'danger')
+        # flash('The confirmation link is invalid or has expired.', 'danger')
+        return redirect(url_for('invalidLink'))
 
     user = User.query.filter_by(email=email).first_or_404()
     print(f'email= {email}')
@@ -288,8 +335,20 @@ def confirm_email(token):
         user.confirmed_on = datetime.datetime.now()
         db.session.add(user) # "db.session.add" is also used to track changes made to existing objects. 
         db.session.commit()
-        flash('You have confirmed your account. Thanks!', 'success')
-    return redirect(url_for('home'))
+        flash('You have confirmed your account. Please login your new account', 'success')
+    # return redirect(url_for('home'))
+    return redirect(url_for('login'))
+
+@app.route('/resend')
+@login_required
+def resend_confirmation():
+    token = generate_confirmation_token(current_user.email)
+    confirm_url = url_for('confirm_email', token=token, _external=True) # _external=true adds the full absolute URL that includes the hostname and port
+    html = render_template('activate.html', confirm_url=confirm_url)
+    subject = "Please confirm your email"
+    send_email(current_user.email, subject, html)
+    flash('A new confirmation email has been sent.', 'success')
+    return redirect(url_for('unconfirmed'))
 
 @app.route('/logout')
 @login_required

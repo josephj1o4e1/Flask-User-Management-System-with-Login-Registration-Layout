@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Sorry</h1>
+<br>
+<p>The confirmation link is invalid or has expired.</p> 
+<br>
+<p>You can <a href="{{ url_for('resend_confirmation') }}">Resend</a> the link. </p>
+<p>Click <a href="/logout">here</a> to logout.</p>
+
+{% endblock %}
+

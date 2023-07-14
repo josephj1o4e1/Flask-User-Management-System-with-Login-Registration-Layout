@@ -1,4 +1,4 @@
-from itsdangerous import URLSafeTimedSerializer
+from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
 from app import app
 
 
@@ -7,7 +7,7 @@ def generate_confirmation_token(email):
     return serializer.dumps(email, salt=app.config['SECURITY_PASSWORD_SALT'])
 
 
-def confirm_token(token, expiration=3600):
+def confirm_token(token, expiration=15): # 15 # 3600
     serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
     try:
         email = serializer.loads(
@@ -15,6 +15,8 @@ def confirm_token(token, expiration=3600):
             salt=app.config['SECURITY_PASSWORD_SALT'],
             max_age=expiration
         )
-    except:
-        return False
+    except SignatureExpired:
+        raise Exception('Token has expired')
+    except BadSignature:
+        raise Exception('Invalid token')  # Raise exception when token is invalid
     return email
