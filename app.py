@@ -113,6 +113,15 @@ def login():
     form = LoginForm()
     rform = RegisterForm()
     activePill = request.form.get('active_pill')
+    if current_user.is_authenticated:
+        next = request.args.get('next')
+        # # url_has_allowed_host_and_scheme should check if the url is safe
+        # # for redirects, meaning it matches the request host.
+        # # See Django's url_has_allowed_host_and_scheme for an example.
+        # if not url_has_allowed_host_and_scheme(next, request.host):
+        #     return abort(400, message="redirect url is not safe.")
+        
+        return redirect(next or url_for('home'))
     
     if request.method == 'POST':
         # LOGIN
@@ -137,7 +146,7 @@ def login():
                 # return redirect(url_for('home'))
             else: 
                 error = 'Invalid credentials, please try again. '
-        # LOGIN
+        # REGISTER
         elif activePill=="active_pill_register" and rform.validate_on_submit():
             user = User(
                 name=rform.name.data,
