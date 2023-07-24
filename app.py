@@ -8,6 +8,7 @@ from oauthlib.oauth2 import WebApplicationClient
 import requests
 from functools import wraps
 from dotenv import load_dotenv
+import secrets
 load_dotenv()
 
 app = Flask(__name__)
@@ -77,7 +78,8 @@ def get_facebook_provider_cfg(): # naive function to retrieve google oauth's pro
 # load_user is a required callbackfunction to be defined for the user_loader decorator. 
 @login_manager.user_loader
 def load_user(user_id):
-    return User.query.filter(User.id == int(user_id)).first() or UserOAuth.query.filter(UserOAuth.id == int(user_id)).first()
+    return User.query.filter(User.id == int(user_id)).first()
+    # return User.query.filter(User.id == int(user_id)).first() or UserOAuth.query.filter(UserOAuth.id == int(user_id)).first()
     # return User.get_id(user_id)
 
 def check_confirmed(func):
@@ -133,7 +135,12 @@ def login():
                 #     flash('Please confirm your email first. ')
                 #     return render_template("loginRegist.html", form=form, rform=rform, error=error)
 
-                login_user(foundUser)
+                if request.form.get('loginCheck'):
+                    remember = True
+                else:
+                    remember=False
+                print(f'remember = {remember}')
+                login_user(foundUser, remember=remember)
                 flash('you were just logged in')
 
                 next = request.args.get('next')
@@ -256,19 +263,28 @@ def google_authorized():
         # users_name = userinfo_response.json()["given_name"]
         users_name = userinfo_response.json()["name"]
 
-        foundUser = UserOAuth.query.filter_by(email=users_email).first()
+        foundUser = User.query.filter_by(email=users_email).first()
         # print(f'!!!! users_name = {users_name}')
         # print(f'!! foundUser = {foundUser}')
         if foundUser==None: 
-            foundUser = UserOAuth(
+            foundUser = User(
                 google_id=unique_id, 
                 name=users_name,
                 username=users_email,
                 email=users_email,
-                profile_pic=picture
+                profile_pic=picture, 
+                password=bcrypt.generate_password_hash(secrets.token_hex(16)).decode('utf-8')
             )        
             db.session.add(foundUser)
             db.session.commit()
+            token = generate_confirmation_token(foundUser.email)
+            confirm_url = url_for('confirm_email', token=token, _external=True) # _external=true adds the full absolute URL that includes the hostname and port
+            html = render_template('activate.html', confirm_url=confirm_url)
+            subject = "Please confirm your email"
+            send_email(foundUser.email, subject, html)
+            
+            flash('A confirmation email has been sent via email. confirm before login. ', 'success')
+
         login_user(foundUser)
         flash('you were just logged in')
 
