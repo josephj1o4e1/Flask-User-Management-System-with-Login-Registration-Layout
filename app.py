@@ -113,6 +113,7 @@ def login():
     form = LoginForm()
     rform = RegisterForm()
     activePill = request.form.get('active_pill')
+
     if current_user.is_authenticated:
         next = request.args.get('next')
         # # url_has_allowed_host_and_scheme should check if the url is safe
@@ -193,7 +194,8 @@ def login():
             # return redirect(url_for('home'))
 
     # return render_template("login.html", form=form, error=error)
-    return render_template("loginRegist.html", form=form, rform=rform, error=error)
+    # return render_template("loginRegist.html", form=form, rform=rform, error=error)
+    return render_template("loginRegistNew.html", form=form, rform=rform, error=error)
 
 @app.route('/google_login')
 def google_login():
@@ -344,6 +346,7 @@ def confirm_email(token):
         user.confirmed_on = datetime.datetime.now()
         db.session.add(user) # "db.session.add" is also used to track changes made to existing objects. 
         db.session.commit()
+        logout_user()
         flash('You have confirmed your account. Please login your new account', 'success')
     # return redirect(url_for('home'))
     return redirect(url_for('login'))
