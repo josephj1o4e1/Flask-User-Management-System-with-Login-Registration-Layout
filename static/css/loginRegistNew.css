@@ -23,4 +23,8 @@
     background-color:rgba(192, 192, 192, 0.724);
 }
 
+.form-myborder {
+    border: 0.08em solid gray;
+    border-radius: 8px;
+}
 

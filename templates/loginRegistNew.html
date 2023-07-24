@@ -55,14 +55,14 @@
             <p class="text-center">or:</p>
 
             <!-- Email input -->
-            <div class="form-outline mb-4">
-                {{ form.username_email(class="form-control", id="loginName") }}
+            <div class="form-outline mb-3">
+                {{ form.username_email(class="form-control form-myborder", id="loginName") }}
                 <label class="form-label" for="loginName">Email or username</label>
             </div>
 
             <!-- Password input -->
-            <div class="form-outline mb-4">
-                {{ form.password(class="form-control", id="loginPassword") }}
+            <div class="form-outline mb-3">
+                {{ form.password(class="form-control form-myborder", id="loginPassword") }}
                 <label class="form-label" for="loginPassword">Password</label>
             </div>
 
@@ -120,8 +120,8 @@
             <!-- {% for error in rform.name.errors %}
                 <span style="color: red;">{{ error }}</span>
             {% endfor %} -->
-            <div class="form-outline mb-4">
-                {{ rform.name(class="form-control", id="registerName") }}
+            <div class="form-outline mb-3">
+                {{ rform.name(class="form-control form-myborder", id="registerName") }}
                 <label class="form-label" for="registerName">Full Name</label>
             </div>
             
@@ -129,8 +129,8 @@
                 <span style="color: red;">{{ error }}</span>
             {% endfor %} -->
             <!-- Username input -->
-            <div class="form-outline mb-4">
-                {{ rform.username(class="form-control", id="registerUsername") }}
+            <div class="form-outline mb-3">
+                {{ rform.username(class="form-control form-myborder", id="registerUsername") }}
                 <label class="form-label" for="registerUsername">Username</label>
             </div>
 
@@ -138,8 +138,8 @@
                 <span style="color: red;">{{ error }}</span>
             {% endfor %} -->
             <!-- Email input -->
-            <div class="form-outline mb-4">
-                {{ rform.email(class="form-control", id="registerEmail") }}
+            <div class="form-outline mb-3">
+                {{ rform.email(class="form-control form-myborder", id="registerEmail") }}
                 <label class="form-label" for="registerEmail">Email</label>
             </div>
 
@@ -147,8 +147,8 @@
                 <span style="color: red;">{{ error |safe}}</span>
             {% endfor %}
             <!-- Password input -->
-            <div class="form-outline mb-4">
-                {{ rform.password(class="form-control", id="registerPassword") }}
+            <div class="form-outline mb-3">
+                {{ rform.password(class="form-control form-myborder", id="registerPassword") }}
                 <label class="form-label" for="registerPassword">Password</label>
             </div>
 
@@ -156,8 +156,8 @@
                 <span style="color: red;">{{ error |safe}}</span>
             {% endfor %}
             <!-- Repeat Password input -->
-            <div class="form-outline mb-4">
-                {{ rform.confirm(class="form-control", id="registerRepeatPassword") }}
+            <div class="form-outline mb-3">
+                {{ rform.confirm(class="form-control form-myborder", id="registerRepeatPassword") }}
                 <label class="form-label" for="registerRepeatPassword">Repeat password</label>
             </div>
 
@@ -165,7 +165,7 @@
             <div class="form-check d-flex justify-content-center mb-4">
                 <!-- <input class="form-check-input me-2" type="checkbox" value="" id="registerCheck" 
                     aria-describedby="registerCheckHelpText" /> -->
-                {{ rform.terms(class="form-check-input me-2", type="checkbox", id="registerCheck", **{'aria-describedby':"registerCheckHelpText"}) }} 
+                {{ rform.terms(class="form-check-input me-2 form-myborder", type="checkbox", id="registerCheck", **{'aria-describedby':"registerCheckHelpText"}) }} 
                 <label class="form-check-label" for="registerCheck">
                     I have read and agree to the terms
                 </label>
