@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block css %}
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/loginRegist.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/loginRegistNew.css') }}">
 {% endblock %}
 
 
@@ -9,10 +9,10 @@
 <!-- Pills navs -->
 <ul class="nav nav-pills nav-justified mb-3" id="pills-tab" role="tablist">
     <li class="nav-item" role="presentation">
-        <button class="nav-link active" id="tab-login" data-bs-toggle="pill" data-bs-target="#pills-login"
+        <button class="nav-link btn-primary active" id="tab-login" data-bs-toggle="pill" data-bs-target="#pills-login"
             type="button" role="tab" aria-controls="pills-login" aria-selected="true">Login</a>
     </li>
-    <li class="nav-item" role="presentation">
+    <li class="nav-item btn-primary" role="presentation">
         <button class="nav-link" id="tab-register" data-bs-toggle="pill" data-bs-target="#pills-register"
             type="button" role="tab" aria-controls="pills-register" aria-selected="false">Register</a>
     </li>
@@ -143,18 +143,18 @@
                 <label class="form-label" for="registerEmail">Email</label>
             </div>
 
-            <!-- {% for error in rform.password.errors %}
-                <span style="color: red;">{{ error }}</span>
-            {% endfor %} -->
+            {% for error in rform.password.errors %}
+                <span style="color: red;">{{ error |safe}}</span>
+            {% endfor %}
             <!-- Password input -->
             <div class="form-outline mb-4">
                 {{ rform.password(class="form-control", id="registerPassword") }}
                 <label class="form-label" for="registerPassword">Password</label>
             </div>
 
-            <!-- {% for error in rform.confirm.errors %}
-                <span style="color: red;">{{ error }}</span>
-            {% endfor %} -->
+            {% for error in rform.confirm.errors %}
+                <span style="color: red;">{{ error |safe}}</span>
+            {% endfor %}
             <!-- Repeat Password input -->
             <div class="form-outline mb-4">
                 {{ rform.confirm(class="form-control", id="registerRepeatPassword") }}

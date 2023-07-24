@@ -34,8 +34,8 @@ class RegisterForm(FlaskForm):
                     Length(min=8, max=30),
                     Regexp(regex='^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[ !"#$%&\'()*+,-.\/:;<=>?@[\]^_`{|}~])[A-Za-z\d !"#$%&\'()*+,-.\/:;<=>?@[\]^_`{|}~]', 
                            message='''Password must contain at least 8 characters with:<br/>
-                           1. at least 1 special character(between the double quotes): " !"#$%&\'()*+,-./:;<=>?@[\]^_`{|}~"<br/>
-                           2. letters(1 lowercase and 1 uppercase)<br/>
+                           1. at least 1 special character !"#$%&\'()*+,-./:;<=>?@[\]^_`{|}~<br/>
+                           2. at least 1 lowercase and 1 uppercase letter <br/>
                            3. at least 1 number''')
                     ]
     )
