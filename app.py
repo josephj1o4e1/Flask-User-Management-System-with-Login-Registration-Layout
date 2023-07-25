@@ -156,6 +156,19 @@ def login():
                 error = 'Invalid credentials, please try again. '
         # REGISTER
         elif activePill=="active_pill_register" and rform.validate_on_submit():
+            foundEmailUser = User.query.filter_by(email=rform.email.data).first()
+            # only requires email to be unique
+            if foundEmailUser:
+                flash('This Email has been registered before. Please log in. ', category='error')
+                return redirect(url_for('login'))
+
+            # foundUser = User.query.filter_by(name=rform.username.data).first()
+            # if foundUser:
+            #     flash('Username has been taken, please try another one. ')
+            #     return redirect(url_for('login'))
+
+            # # do later: suggest usernames
+            
             user = User(
                 name=rform.name.data,
                 username=rform.username.data,
@@ -163,18 +176,7 @@ def login():
                 password=rform.password.data,
                 is_confirmed=False
             )
-            # foundEmail = User.query.filter_by(email=rform.email.data).first()
-            # # only requires email to be unique
-            # if foundEmail:
-            #     flash('This Email has been registered before. Please log in. ')
-            #     return redirect(url_for('login'))
             
-            # # do later: unique username is the last rule. suggest usernames and direct login
-            # foundUser = User.query.filter_by(name=rform.username.data).first()
-            # if foundUser:
-            #     flash('Username has been taken, please try another one. ')
-            #     return redirect(url_for('login'))
-
             db.session.add(user)
             db.session.commit()
 
