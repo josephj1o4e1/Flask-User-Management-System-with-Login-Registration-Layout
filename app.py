@@ -42,7 +42,7 @@ def get_google_provider_cfg(): # naive function to retrieve google oauth's provi
         return None
 
 github_client = WebApplicationClient(app.config['OAUTH_CREDENTIALS']['github']['id'])
-def get_github_provider_cfg(): # naive function to retrieve google oauth's provider config. Need to retrieve the base URI from the Discovery document using the `authorization_endpoint` metadata value.
+def get_github_provider_cfg():
     try:
         response = requests.get(app.config['OAUTH_CREDENTIALS']['github']['config_url'])
         response.raise_for_status()  # Raise an exception for 4xx or 5xx status codes
@@ -53,7 +53,7 @@ def get_github_provider_cfg(): # naive function to retrieve google oauth's provi
         return None
 
 orcid_client = WebApplicationClient(app.config['OAUTH_CREDENTIALS']['orcid']['id'])
-def get_orcid_provider_cfg(): # naive function to retrieve google oauth's provider config. Need to retrieve the base URI from the Discovery document using the `authorization_endpoint` metadata value.
+def get_orcid_provider_cfg():
     try:
         response = requests.get(app.config['OAUTH_CREDENTIALS']['orcid']['config_url'])
         response.raise_for_status()  # Raise an exception for 4xx or 5xx status codes
@@ -64,14 +64,14 @@ def get_orcid_provider_cfg(): # naive function to retrieve google oauth's provid
         return None
 
 facebook_client = WebApplicationClient(app.config['OAUTH_CREDENTIALS']['facebook']['id'])
-def get_facebook_provider_cfg(): # naive function to retrieve google oauth's provider config. Need to retrieve the base URI from the Discovery document using the `authorization_endpoint` metadata value.
+def get_facebook_provider_cfg():
     try:
         response = requests.get(app.config['OAUTH_CREDENTIALS']['facebook']['config_url'])
         response.raise_for_status()  # Raise an exception for 4xx or 5xx status codes
         return response.json()
     except requests.exceptions.RequestException as e:
         # Handle the exception here
-        print(f"Error retrieving Google provider config: {e}")
+        print(f"Error retrieving Facebook provider config: {e}")
         return None
 
 # Gets the user information from userid, and store the retrieved data in the session cookie. 
@@ -139,7 +139,6 @@ def login():
                     remember = True
                 else:
                     remember=False
-                print(f'remember = {remember}')
                 login_user(foundUser, remember=remember)
                 flash('you were just logged in')
 
@@ -151,17 +150,17 @@ def login():
                 #     return abort(400, message="redirect url is not safe.")
                 
                 return redirect(next or url_for('home'))
-                # return redirect(url_for('home'))
             else: 
                 error = 'Invalid credentials, please try again. '
         # REGISTER
         elif activePill=="active_pill_register" and rform.validate_on_submit():
             foundEmailUser = User.query.filter_by(email=rform.email.data).first()
-            # only requires email to be unique
+            # requires email to be unique
             if foundEmailUser:
                 flash('This Email has been registered before. Please log in. ', category='error')
                 return redirect(url_for('login'))
 
+            # # requires username to be unique
             # foundUser = User.query.filter_by(name=rform.username.data).first()
             # if foundUser:
             #     flash('Username has been taken, please try another one. ')
@@ -199,11 +198,6 @@ def login():
             #     return abort(400, message="redirect url is not safe.")
             
             return redirect(url_for('login'))
-            # return redirect(next or url_for('home'))
-            # return redirect(url_for('home'))
-
-    # return render_template("login.html", form=form, error=error)
-    # return render_template("loginRegist.html", form=form, rform=rform, error=error)
     return render_template("loginRegistNew.html", form=form, rform=rform, error=error)
 
 @app.route('/google_login')
@@ -266,8 +260,6 @@ def google_authorized():
         users_name = userinfo_response.json()["name"]
 
         foundUser = User.query.filter_by(email=users_email).first()
-        # print(f'!!!! users_name = {users_name}')
-        # print(f'!! foundUser = {foundUser}')
         if foundUser==None: 
             foundUser = User(
                 google_id=unique_id, 
@@ -298,7 +290,6 @@ def google_authorized():
         #     return abort(400, message="redirect url is not safe.")
         
         return redirect(next or url_for('home'))
-        # return redirect(url_for('home'))
         
     else:
         return "User email not available or not verified by Google.", 400
@@ -366,7 +357,6 @@ def confirm_email(token):
         db.session.commit()
         logout_user()
         flash('You have confirmed your account. Please login your new account', 'success')
-    # return redirect(url_for('home'))
     return redirect(url_for('login'))
 
 @app.route('/resend')
@@ -383,7 +373,6 @@ def resend_confirmation():
 @app.route('/logout')
 @login_required
 def logout():
-    # session.pop('logged_in', None)
     logout_user()
     flash('you were just logged out')
     return redirect(url_for('welcome'))
@@ -399,8 +388,7 @@ def delete_account():
     # Log the user out
     logout_user()
     flash('You have DELETED your account!', 'success')
-    # Redirect the user to a confirmation page or any desired destination
     return redirect(url_for('home'))
 
 if __name__ == "__main__":
-    app.run(debug=True, ssl_context="adhoc") # `debug=True` gives us a fancier flask debugger in the browser
+    app.run(debug=True, ssl_context="adhoc") # `debug=True` gives us a fancier flask debugger in the browser, but only in developer node. In production mode, set debug to False. 
