@@ -1,4 +1,4 @@
-from app import db, bcrypt
+from .loginapp import db, bcrypt
 import datetime
 
 from sqlalchemy import ForeignKey

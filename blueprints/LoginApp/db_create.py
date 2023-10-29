@@ -1,8 +1,8 @@
-from app import app
-from app import db
-from models import BlogPost, User
+from .loginapp import current_app
+from .loginapp import db
+from blueprints.LoginApp.models import BlogPost, User
 
-with app.app_context(): # to establish an application context. It ensures that the necessary application context is set up before interacting with the database using `db.session`.
+with current_app.app_context(): # to establish an application context. It ensures that the necessary application context is set up before interacting with the database using `db.session`.
     # # drop tables for the default bind
     # db.drop_all(bind_key=None)
     

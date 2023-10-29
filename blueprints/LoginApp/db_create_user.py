@@ -1,8 +1,8 @@
-from app import app
-from app import db
-from models import User
+from .loginapp import current_app
+from .loginapp import db
+from .models import User
 
-with app.app_context(): 
+with current_app.app_context(): 
     # Delete all data rows in table "users" including the referenced data such as in the table "posts". 
     db.session.execute(db.text('TRUNCATE TABLE users CASCADE'))
     # insert data for quick demo
