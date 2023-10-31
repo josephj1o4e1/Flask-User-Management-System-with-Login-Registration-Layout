@@ -1,12 +1,11 @@
-import os
 import datetime, json
 from flask import render_template, request, redirect, url_for, flash, current_app, g, abort
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_mail import Mail
-from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 
-# from oauthlib.oauth2 import WebApplicationClient
+from flask_login import LoginManager, login_user, login_required, logout_user, current_user
+from oauthlib.oauth2 import WebApplicationClient
 import requests
 from functools import wraps
 from dotenv import load_dotenv
@@ -21,13 +20,11 @@ login_bp = Blueprint(
     static_folder='static'
 )
 
-# db = SQLAlchemy(current_app)
-# bcrypt = Bcrypt(current_app)
-# mail = Mail(current_app)
-# login_manager = LoginManager()
-# login_manager.init_app(current_app)
-
-from ..extensions import db, bcrypt, login_manager, google_client
+db = SQLAlchemy(current_app)
+bcrypt = Bcrypt(current_app)
+mail = Mail(current_app)
+login_manager = LoginManager()
+login_manager.init_app(current_app)
 login_manager.login_view = "/login"
 login_manager.login_message = ""
 
@@ -38,11 +35,10 @@ from .emails import send_email
 from .utils import url_has_allowed_host_and_scheme
 
 # OAuth 2 client setup
-# google_client = webapplicationclient(current_app.config['OAUTH_CREDENTIALS']['google']['id'])
+google_client = WebApplicationClient(current_app.config['OAUTH_CREDENTIALS']['google']['id'])
 def get_google_provider_cfg(): # naive function to retrieve google oauth's provider config. Need to retrieve the base URI from the Discovery document using the `authorization_endpoint` metadata value.
     try:
-        # response = requests.get(current_app.config['OAUTH_CREDENTIALS']['google']['config_url'])
-        response = requests.get(os.getenv('GOOGLE_CONFIG_URL'))
+        response = requests.get(current_app.config['OAUTH_CREDENTIALS']['google']['config_url'])
         response.raise_for_status()  # Raise an exception for 4xx or 5xx status codes
         return response.json()
     except requests.exceptions.RequestException as e:
@@ -50,11 +46,10 @@ def get_google_provider_cfg(): # naive function to retrieve google oauth's provi
         print(f"Error retrieving Google provider config: {e}")
         return None
 
-# github_client = webapplicationclient(current_app.config['OAUTH_CREDENTIALS']['github']['id'])
+github_client = WebApplicationClient(current_app.config['OAUTH_CREDENTIALS']['github']['id'])
 def get_github_provider_cfg():
     try:
-        # response = requests.get(current_app.config['OAUTH_CREDENTIALS']['github']['config_url'])
-        response = requests.get(os.getenv('GITHUB_CONFIG_URL'))
+        response = requests.get(current_app.config['OAUTH_CREDENTIALS']['github']['config_url'])
         response.raise_for_status()  # Raise an exception for 4xx or 5xx status codes
         return response.json()
     except requests.exceptions.RequestException as e:
@@ -62,11 +57,10 @@ def get_github_provider_cfg():
         print(f"Error retrieving GitHub provider config: {e}")
         return None
 
-# orcid_client = webapplicationclient(current_app.config['OAUTH_CREDENTIALS']['orcid']['id'])
+orcid_client = WebApplicationClient(current_app.config['OAUTH_CREDENTIALS']['orcid']['id'])
 def get_orcid_provider_cfg():
     try:
-        # response = requests.get(current_app.config['OAUTH_CREDENTIALS']['orcid']['config_url'])
-        response = requests.get(os.getenv('ORCID_CONFIG_URL'))
+        response = requests.get(current_app.config['OAUTH_CREDENTIALS']['orcid']['config_url'])
         response.raise_for_status()  # Raise an exception for 4xx or 5xx status codes
         return response.json()
     except requests.exceptions.RequestException as e:
@@ -74,11 +68,10 @@ def get_orcid_provider_cfg():
         print(f"Error retrieving ORCID provider config: {e}")
         return None
 
-# facebook_client = webapplicationclient(current_app.config['OAUTH_CREDENTIALS']['facebook']['id'])
+facebook_client = WebApplicationClient(current_app.config['OAUTH_CREDENTIALS']['facebook']['id'])
 def get_facebook_provider_cfg():
     try:
-        # response = requests.get(current_app.config['OAUTH_CREDENTIALS']['facebook']['config_url'])
-        response = requests.get(os.getenv('FACEBOOK_CONFIG_URL'))
+        response = requests.get(current_app.config['OAUTH_CREDENTIALS']['facebook']['config_url'])
         response.raise_for_status()  # Raise an exception for 4xx or 5xx status codes
         return response.json()
     except requests.exceptions.RequestException as e:
@@ -248,8 +241,7 @@ def google_authorized():
         token_url,
         headers=headers,
         data=body,
-        # auth=(current_app.config['OAUTH_CREDENTIALS']['google']['id'], current_app.config['OAUTH_CREDENTIALS']['google']['secret']),
-        auth=(os.getenv('GOOGLE_CLIENT_ID_ENV'), os.getenv('GOOGLE_CLIENT_SECRET_ENV')),
+        auth=(current_app.config['OAUTH_CREDENTIALS']['google']['id'], current_app.config['OAUTH_CREDENTIALS']['google']['secret']),
     )
 
     # Parse the tokens!
