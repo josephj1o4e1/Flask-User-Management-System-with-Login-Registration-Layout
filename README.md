@@ -7,4 +7,3 @@ OAuth: oauthlib
 ORM: SQLAlchemy + Alembic  
 Bootstrap 5.3
 
-run locally using: flask run --debug --cert=adhoc

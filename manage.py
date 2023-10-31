@@ -24,7 +24,7 @@ from flask_migrate import Migrate
 import datetime
 
 from app import app, db
-from blueprints.LoginApp.models import User
+from models import User
 
 app.config.from_object(os.environ['APP_SETTINGS'])
 migrate = Migrate(app, db)
