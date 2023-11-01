@@ -1,5 +1,8 @@
 # Python Flask User Management System
 This is a Flask Website that implements a basic user management system with Login/Register layout.   
+Incorporating session management with Flask-Login, and integrated OAuth 2.0 for user login services.  
+Designed PostgreSQL database. Implemented password storage with BCrypt package for one-way hashing.  
+Employed SQLAlchemy as my ORM to enhance database operations and applied Flask-Migrate to monitor database migrations.  
 
 Framework: Flask  
 Session management: Flask-Login  
