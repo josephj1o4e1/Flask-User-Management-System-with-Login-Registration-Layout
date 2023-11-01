@@ -3,6 +3,7 @@ This is a Flask Website that implements a basic user management system with Logi
 Incorporating session management with Flask-Login, and integrated OAuth 2.0 for user login services.  
 Designed PostgreSQL database. Implemented password storage with BCrypt package for one-way hashing.  
 Employed SQLAlchemy as my ORM to enhance database operations and applied Flask-Migrate to monitor database migrations.  
+This layout used Bootstrap 5.3 and designed the login and register pager together as a single page pill-like design. 
 
 Framework: Flask  
 Session management: Flask-Login  
